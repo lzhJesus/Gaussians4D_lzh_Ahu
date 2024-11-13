@@ -443,7 +443,6 @@ def readdynerfInfo(datadir,use_bg_points,eval):
     # loading all the data follow hexplane format
     # ply_path = os.path.join(datadir, "points3D_dense.ply")
     ply_path = os.path.join(datadir, "points3D_downsample2.ply")
-    light_position = light_estimation(ply_path)
     from scene.neural_3D_dataset_NDC import Neural3D_NDC_Dataset
     train_dataset = Neural3D_NDC_Dataset(
     datadir,
@@ -481,7 +480,7 @@ def readdynerfInfo(datadir,use_bg_points,eval):
                            ply_path=ply_path,
                            maxtime=300
                            )
-    return scene_info,light_position
+    return scene_info
 
 def setup_camera(w, h, k, w2c, near=0.01, far=100):
     from diff_gaussian_rasterization import GaussianRasterizationSettings as Camera
