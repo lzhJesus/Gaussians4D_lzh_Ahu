@@ -50,7 +50,7 @@ class Scene:
             scene_info = sceneLoadTypeCallbacks["Blender"](args.source_path, args.white_background, args.eval, args.extension)
             dataset_type="blender"
         elif os.path.exists(os.path.join(args.source_path, "poses_bounds.npy")):
-            scene_info, light_position = sceneLoadTypeCallbacks["dynerf"](args.source_path, args.white_background, args.eval)
+            scene_info = sceneLoadTypeCallbacks["dynerf"](args.source_path, args.white_background, args.eval)
             dataset_type="dynerf"
         elif os.path.exists(os.path.join(args.source_path,"dataset.json")):
             scene_info = sceneLoadTypeCallbacks["nerfies"](args.source_path, False, args.eval)
