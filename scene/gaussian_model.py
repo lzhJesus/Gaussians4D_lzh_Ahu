@@ -657,14 +657,6 @@ class GaussianModel:
 
         # 打印关键点的索引
         key_point_indices = torch.nonzero(key_points).squeeze()
-        key_point_coordinates = coordinates_input_tensor[key_point_indices]
-        # 创建 Open3D 点云对象
-        point_cloud = o3d.geometry.PointCloud()
-        key_point_coordinates_np = key_point_coordinates.cpu().numpy()
-        # 将关键点坐标添加到点云
-        point_cloud.points = o3d.utility.Vector3dVector(key_point_coordinates_np)
-        # 保存点云为 .ply 文件
-        o3d.io.write_point_cloud("key_points.ply", point_cloud)
         # 剩余的普通点
         non_key_point_indices = torch.nonzero(~key_points).squeeze()
         self.keypoint = key_point_indices

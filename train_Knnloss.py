@@ -237,7 +237,6 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
             # For guide pruning
             if iteration > opt.pruning_from_iter and iteration % opt.pruning_interval == 0 and gaussians.get_xyz.shape[0]>200000 and iteration < opt.densify_until_iter and opt.guide_pruning_use == True:
                 if single_psnr(image.clone().detach(), gt_image.clone().detach()) < opt.error_psnr_threshold :
-                    print(single_psnr(image.clone().detach(), gt_image.clone().detach()))
                     guide_cams[viewpoint_cam.image_name] = image, viewpoint_cam, render_pkg["means3D_deform"]
                     error_images.append(viewpoint_cam.image_name)
             
