@@ -57,7 +57,7 @@ def render_set(model_path, name, iteration, views, gaussians, pipeline, backgrou
     for idx, view in enumerate(tqdm(views, desc="Rendering progress")):
         if idx == 0:time1 = time()
         
-        rendering = render(view, gaussians, pipeline, background, stage= "Keypoint", cam_type=cam_type)["render"]
+        rendering = render(view, gaussians, pipeline, background, cam_type=cam_type)["render"]
         render_images.append(to8b(rendering).transpose(1,2,0))
         render_list.append(rendering)
         if name in ["train", "test"]:
@@ -83,10 +83,6 @@ def render_sets(dataset : ModelParams, hyperparam, iteration : int, pipeline : P
         cam_type=scene.dataset_type
         bg_color = [1,1,1] if dataset.white_background else [0, 0, 0]
         background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
-        # time1_xyz = gaussians.get_xyz_bytime(0.10).detach()
-        # time2_xyz = gaussians.get_xyz_bytime(0.15).detach()
-        # time3_xyz = gaussians.get_xyz_bytime(0.20).detach()
-        # gaussians.create_keypoint(time1_xyz, time2_xyz, time3_xyz)
         if not skip_train:
             render_set(dataset.model_path, "train", scene.loaded_iter, scene.getTrainCameras(), gaussians, pipeline, background,cam_type)
 

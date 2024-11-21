@@ -161,10 +161,10 @@ class OptimizationParams(ParamGroup):
         self.guide_pruning_use = True
         self.error_threshold = 0.2
         self.cam_distance_threshold = 10
-        self.error_psnr_threshold = 35.00
+        self.error_psnr_threshold = 36.00
         
         #for keypoint_add
-        self.keypoint_from_iter = 5000
+        self.keypoint_from_iter = 2500
         self.keypoint_add_interval = 2500
         self.keypoint_perturb = 1
         

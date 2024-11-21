@@ -186,11 +186,11 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
         discriminator_loss = None
             
         for viewpoint_cam in viewpoint_cams:
-            if iteration >= opt.keypoint_from_iter and iteration % opt.keypoint_add_interval == 0 and gaussians.get_xyz.shape[0]<280000:
+            if iteration >= opt.keypoint_from_iter and iteration % opt.keypoint_add_interval == 0 and iteration < 5001 and stage == "fine" and gaussians.get_xyz.shape[0]<220000:
                 # stage = "Keypoint"
-                time1_xyz = gaussians.get_xyz_bytime(viewpoint_cam.time).detach()
-                time2_xyz = gaussians.get_xyz_bytime(viewpoint_cam.time+0.05).detach()
-                time3_xyz = gaussians.get_xyz_bytime(viewpoint_cam.time+0.10).detach()
+                time1_xyz = gaussians.get_xyz_bytime(0.3).detach()
+                time2_xyz = gaussians.get_xyz_bytime(0.5).detach()
+                time3_xyz = gaussians.get_xyz_bytime(0.7).detach()
                 gaussians.create_keypoint(time1_xyz, time2_xyz, time3_xyz)
             render_pkg = render(viewpoint_cam, gaussians, pipe, background, stage=stage, cam_type=scene.dataset_type)
             image, viewspace_point_tensor, visibility_filter, radii = render_pkg["render"], render_pkg["viewspace_points"], render_pkg["visibility_filter"], render_pkg["radii"]
@@ -236,7 +236,7 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
                 entropyloss += opt.entropy_loss_weight * entropy_loss(opacities_tensor)
             # For guide pruning
             if iteration > opt.pruning_from_iter and iteration % opt.pruning_interval == 0 and gaussians.get_xyz.shape[0]>200000 and iteration < opt.densify_until_iter and opt.guide_pruning_use == True:
-                if single_psnr(image.clone().detach(), gt_image.clone().detach()) < opt.error_psnr_threshold :
+                if psnr(image.clone().detach(), gt_image.clone().detach()) < opt.error_psnr_threshold :
                     guide_cams[viewpoint_cam.image_name] = image, viewpoint_cam, render_pkg["means3D_deform"]
                     error_images.append(viewpoint_cam.image_name)
             
@@ -327,7 +327,7 @@ def scene_reconstruction(dataset, opt, hyper, pipe, testing_iterations, saving_i
                 else:    
                     opacity_threshold = opt.opacity_threshold_fine_init - iteration*(opt.opacity_threshold_fine_init - opt.opacity_threshold_fine_after)/(opt.densify_until_iter)  
                     densify_threshold = opt.densify_grad_threshold_fine_init - iteration*(opt.densify_grad_threshold_fine_init - opt.densify_grad_threshold_after)/(opt.densify_until_iter )
-                if  iteration >= opt.keypoint_from_iter and iteration % opt.keypoint_add_interval == 0 and gaussians.get_xyz.shape[0]<280000:
+                if  iteration >= opt.keypoint_from_iter and iteration % opt.keypoint_add_interval == 0 and iteration < 5001 and stage == "fine" and gaussians.get_xyz.shape[0]<220000:
                     gaussians.add_point_by_mask(perturb=opt.keypoint_perturb)
                 if  iteration > opt.densify_from_iter and iteration % opt.densification_interval == 0 and gaussians.get_xyz.shape[0]<360000:
                     size_threshold = 20 if iteration > opt.opacity_reset_interval else None

@@ -79,9 +79,9 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         means3D_final, scales_final, rotations_final, opacity_final, shs_final = pc._deformation(means3D, scales,
                                                                  rotations, opacity, shs,
                                                                  time)
-        # means3D_copy= means3D.clone()
-        # means3D_copy[pc.keypoint] = means3D_final[pc.keypoint]
-        # means3D_final, scales_final, rotations_final, opacity_final, shs_final = means3D_copy, scales_final, rotations_final, opacity_final, shs_final
+        means3D_copy= means3D.clone()
+        means3D_copy[pc.keypoint] = means3D_final[pc.keypoint]
+        means3D_final, scales_final, rotations_final, opacity_final, shs_final = means3D_copy, scales_final, rotations_final, opacity_final, shs_final
 
     else:
         raise NotImplementedError

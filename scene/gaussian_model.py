@@ -609,13 +609,11 @@ class GaussianModel:
         time = torch.tensor(time).to(self._xyz.device).repeat(self.get_xyz.shape[0],1)
         xyz, _ ,_ ,_ ,_ = self._deformation(self.get_xyz, self._scaling, self._rotation, self._opacity,
                                 self.get_features, time)
-        return xyz.detach().cpu()
+        return xyz.clone().detach().cpu()
     
     def create_keypoint(self, point_tensor1, point_tensor2, point_tensor3):
-        # 计算速度（假设时间间隔为1秒，简单计算速度差）
-        coordinates_input_tensor= self.get_xyz.clone().detach()
-        velocity = (point_tensor2 - point_tensor1) / 0.11  # 速度 = 位移 / 时间间隔
-        velocity2 = (point_tensor3 - point_tensor2) / 0.11  # 第二个时间点到第三个时间点的速度
+        velocity = (point_tensor2 - point_tensor1) / 0.2  # 速度 = 位移 / 时间间隔
+        velocity2 = (point_tensor3 - point_tensor2) / 0.2 # 第二个时间点到第三个时间点的速度
         acceleration = velocity2 - velocity  # 加速度 = 速度变化
 
         # 计算相邻速度向量之间的角度变化
@@ -643,9 +641,9 @@ class GaussianModel:
         direction_change_std = result[:, 2].std().item()
 
         # 设置阈值，标记速度、加速度或方向变化超出阈值的点为关键点
-        velocity_threshold = velocity_mean + 3 * velocity_std  # 设定阈值：速度大于均值+2倍标准差
-        acceleration_threshold = acceleration_mean + 3 * acceleration_std  # 加速度阈值
-        direction_change_threshold = direction_change_mean + 3 * direction_change_std  # 方向变化阈值
+        velocity_threshold = velocity_mean + 5 * velocity_std  # 设定阈值：速度大于均值+2倍标准差
+        acceleration_threshold = acceleration_mean + 5 * acceleration_std  # 加速度阈值
+        direction_change_threshold = direction_change_mean + 5 * direction_change_std  # 方向变化阈值
 
         # 检测关键点
         key_points = torch.zeros(point_tensor1.shape[0], dtype=torch.bool)
@@ -661,3 +659,12 @@ class GaussianModel:
         non_key_point_indices = torch.nonzero(~key_points).squeeze()
         self.keypoint = key_point_indices
         self.non_keypoint = non_key_point_indices
+         # 获取关键点坐标
+        keypoint_coords = point_tensor1[self.keypoint].cpu().numpy()
+
+        # 创建 Open3D 点云对象
+        keypoint_pcd = o3d.geometry.PointCloud()
+        keypoint_pcd.points = o3d.utility.Vector3dVector(keypoint_coords)
+
+        # 保存到文件
+        o3d.io.write_point_cloud("keypoint.ply", keypoint_pcd)
